@@ -1,0 +1,15 @@
+*{
+    text-align: center;
+    border-top: 0;
+    background-color: #079600;
+    color: white;
+    text-shadow: 0 0 5px gold;
+}
+
+h1{
+    font-size: 40px;
+}
+
+h2{
+    font-size: 32px;
+}
