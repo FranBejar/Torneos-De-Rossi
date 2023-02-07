@@ -23,18 +23,37 @@ class Grupo {
 }
 
 class Partido {
-    constructor(equipo1, equipo2, golesE1, golesE2, resultado, estadio) {
+    constructor(equipo1, equipo2, golesE1, golesE2, ganador, estadio) {
         this.equipo1 = equipo1;
         this.equipo2 = equipo2;
         this.golesE1 = golesE1;
         this.golesE2 = golesE2;
-        this.resultado = resultado;
+        this.ganador = ganador;
         this.estadio = estadio;
     }
 }
 
+let formulario = document.getElementById("equipos");
 
-alert("BIENVENIDO A TORNEOS DE ROSSI, EL ADMINISTRADOR DE TUS TORNEOS DE FUTBOL");
+let formTitulo = document.getElementById("tituloListaEq");
+
+formTitulo.style.visibility = "hidden";
+
+let cantEquipos = document.getElementById("cantEquipos");
+
+cantEquipos.style.visibility = "hidden";
+
+let simuladorPartidos = document.getElementById("cargarPartido");
+
+simuladorPartidos.style.visibility = "hidden";
+
+document.getElementById("eqLocal").style.visibility="hidden";
+
+document.getElementById("eqVisitante").style.visibility="hidden";
+
+document.getElementById("resultado").style.visibility="hidden";
+
+//let baseDeDatosUsuarios = []; //NUEVO - A implementar en entrega final
 
 let scaloneta = []; //ARRAY SOLO PARA PRUEBAS
 
@@ -43,10 +62,6 @@ let registroEquipos = [];
 let grupos = [];
 
 let registroPartidos = [];
-
-let equipos = parseInt(prompt("Ingrese la cantidad de equipos que participan (Deben ser grupos de a 4 - MAXIMO 32)"));
-
-let multiploCuatro = (equipos % 4 == 0);
 
 //CARGA DE ARRAY DE PRUEBA
 scaloneta.push(new Jugador("Franco Armani", 1, 36, "Arquero"));
@@ -76,34 +91,97 @@ scaloneta.push(new Jugador("Enzo Fernandez", 24, 21, "Mediocampista"));
 scaloneta.push(new Jugador("Lisandro Martinez", 25, 24, "Defensor"));
 scaloneta.push(new Jugador("Nahuel Molina", 26, 24, "Defensor"));
 
-//CARGO TODOS LOS EQUIPOS QUE VAN A PARTICIPAR EN EL TORNEO
-if (equipos > 0 && equipos <= 32 && multiploCuatro) {
-    let i = 1;
-    let nombreEquipo = "";
-    let nombreEstadio = "";
-    //let plantel = [];
-    do {
-        nombreEquipo = prompt("Ingrese Nombre del Equipo");
-        while (nombreEquipo == "") {
-            alert("NOMBRE NO VALIDO");
-            nombreEquipo = prompt("Ingrese Nombre del Equipo");
-        }
-        nombreEstadio = prompt("Ingrese Nombre del Estadio"); //Puedo cargarlo vacio, significa que no tiene estadio
+let btnCrearTorneo = document.getElementById("creaTorneo");
 
-        //Para pruebas se cargo un plantel predeterminado, para la idea final se tienen que ejecutar estas lineas
+let btnCargarTorneo = document.getElementById("cargarTorneo");
 
-        //plantel = inscripcionEquipo();
-        //registroEquipos.push(crearEquipo(nombreEquipo, nombreEstadio, plantel));
+let btnGrupos = document.getElementById("grupos");
 
-        registroEquipos.push(crearEquipo(nombreEquipo, nombreEstadio, scaloneta)); //Para pruebas, se carga a cada equipo a La Scaloneta
-        i++;
-    } while (i <= equipos)
+btnGrupos.style.visibility = "hidden";
 
-    grupos = armarGrupos(registroEquipos, (equipos / 4));
+let btnPromedio = document.getElementById("promEdad");
 
-    console.log(grupos); //Linea agregada para ver los grupos cargados en Consola
+btnPromedio.style.visibility = "hidden";
 
-    infoGrupos();
+let btnIniciarJuego = document.getElementById("iniciaJuego");
+
+btnIniciarJuego.style.visibility = "hidden";
+
+let btnRegistroPartidos = document.getElementById("infoPartidos");
+
+btnRegistroPartidos.style.visibility = "hidden";
+
+let btnGuardarTorneo = document.getElementById("guardarTorneo");
+
+btnGuardarTorneo.style.visibility = "hidden";
+
+btnCrearTorneo.addEventListener("click", crearTorneo);
+
+btnCargarTorneo.addEventListener("click",cargarTorneo);
+
+btnGrupos.addEventListener("click",infoGrupos);
+
+btnPromedio.addEventListener("click",promedioEdadTorneo);
+
+btnIniciarJuego.addEventListener("click",iniciarJuego);
+
+btnRegistroPartidos.addEventListener("click",infoResultadosTorneo);
+
+btnGuardarTorneo.addEventListener("click",guardarTorneo);
+
+function crearTorneo() {
+
+    cantEquipos.style.visibility = "visible";
+
+    cantEquipos.innerHTML = 
+        `<h2>Ingrese la cantidad de equipos que participan (Deben ser grupos de 4 - MAXIMO 32</h2>
+        <input type=number min=4 max=32 step=4>
+        <button type="submit">Confirmar</button>`
+    
+    cantEquipos.addEventListener("submit",(e)=>{
+    
+    e.preventDefault();
+    let equipos = e.target.children[1].value;
+
+    if (equipos % 4 == 0 && equipos >= 4 && equipos <= 32) {
+        cantEquipos.remove();
+        formTitulo.style.visibility = "visible";
+
+        formulario.innerHTML = `
+            <h2>Ingrese los nombres de los equipos y sus estadios (si tienen)</h2>
+            <input type="text" placeholder="nombre">
+            <input type="text" placeholder="estadio">
+            <button type="submit">Cargar</button>
+        `
+
+        formulario.addEventListener("submit", (e) => {
+            e.preventDefault();
+            let carga = e.target;
+            let nombreEquipo = carga.children[1].value;
+            let nombreEstadio = carga.children[2].value;
+            if (carga.children[1].value == "") {
+                alert("NO VALIDO");
+                return;
+            }
+            document.getElementById("listaEquipos").innerHTML += '<tr><td>' + nombreEquipo + '</td><td>' + nombreEstadio + '</td></tr>';
+            registroEquipos.push(crearEquipo(nombreEquipo, nombreEstadio, scaloneta));
+            formulario.reset()
+            if (registroEquipos.length == equipos) {
+                formulario.remove(); //podrias deshabilitar tambien el boton de crear torneo de la misma forma o con la siguiente linea
+                document.getElementById("creaTorneo").disabled = true;
+                document.getElementById("creaTorneo").style.visibility="hidden";
+                btnGrupos.style.visibility = "visible";
+                btnIniciarJuego.style.visibility = "visible";
+                btnPromedio.style.visibility = "visible";
+                btnRegistroPartidos.style.visibility = "visible";
+                btnGuardarTorneo.style.visibility = "visible";
+                grupos = armarGrupos(registroEquipos, (equipos / 4));
+            }
+        });
+    } else {
+        alert("Deben ser grupos de a 4 - MAXIMO 32")
+    }
+    })
 }
 
 function crearEquipo(nombre, estadio, jugadores) {
@@ -120,7 +198,6 @@ function armarGrupos(registroEquipos, cantidadGrupos) {
         let aux = []; //local al ciclo, se reinicia en cada iteracion
         for (let i = 0; i <= 3; i++) {
             let equipoSeleccionado = getRndInteger(0, registroEquipos.length); //Saca un equipo al azar de la lista
-            //console.log(equipoSeleccionado);
             aux.push(registroEquipos[equipoSeleccionado]);
             registroEquipos.splice(equipoSeleccionado, 1); //Los equipos con grupo asignado se eliminan del array
         }
@@ -129,7 +206,7 @@ function armarGrupos(registroEquipos, cantidadGrupos) {
     return torneo;
 }
 
-function inscripcionEquipo() {
+function inscripcionEquipo() { //A implementar en la Entrega Final
     const posiciones = ["Arquero", "Defensor", "Mediocampista", "Delantero"];
     let plantel = [];
     let nombreCompleto = "";
@@ -159,18 +236,19 @@ function getRndInteger(min, max) {
 
 //Funciones para brindar informacion acerca de los Equipos
 
-function infoGrupos() {
-    let i = 0;
-    while (i < grupos.length) {
-        let j = 0;
-        console.log(grupos[i].nombre);
-        console.log("\n");
-        while (j < grupos[i].equipos.length) {
-            console.log(grupos[i].equipos[j].nombre);
-            j++;
+function infoGrupos(){
+    document.getElementById("nomGrupos").innerHTML = "";
+    document.getElementById("listaGrupos").innerHTML = "";
+
+    for (const grupo of grupos) {
+        document.getElementById("nomGrupos").innerHTML+='<th>'+grupo.nombre+'</th>';
+        let col = document.createElement('td');
+        for (let i = 0; i < 4; i++) {
+            let row = document.createElement('tr');
+            row.innerHTML = grupo.equipos[i].nombre;
+            col.appendChild(row);
         }
-        console.log("\n");
-        i++;
+        document.getElementById("listaGrupos").appendChild(col);
     }
 }
 
@@ -194,75 +272,189 @@ function promedioEdadTorneo() {
     alert("El promedio de edad de todo el torneo es de: " + sumaEdades / cantidadJugadores + " años");
 }
 
-function iniciarJuego() {
-    let msj = "";
-    let i = 1;
-    while (i <= grupos.length) {
-        msj = msj + i + ") " + grupos[i - 1].nombre + "\n";
+function iniciarJuego(){
+    simuladorPartidos.style.visibility = "visible";
+    let i=1;
+    while(i<=grupos.length){
+        let nombre = grupos[i-1].nombre;
+        document.getElementById("listadoDeGrupos").innerHTML+="<option value="+(i-1)+">"+nombre+"</option>";
         i++;
     }
-    let grupoElegido = parseInt(prompt("Seleccione uno de los siguientes grupos: \n" + msj));
-    juego(grupos[grupoElegido - 1]);
+
+    let btn = document.getElementById("confirmaGrupo");
+    let opc = document.getElementById("listadoDeGrupos");
+
+    btn.onclick = (e) => {
+        e.preventDefault();
+
+        let grSelec = grupos[opc.options[opc.selectedIndex].value];
+        juego(grSelec);
+    };
 }
 
-function juego(grupo) { //En primer instancia solo pueden jugar partidos equipos del mismo grupo
-    let listaEquipos = [grupo.equipos[0], grupo.equipos[1], grupo.equipos[2], grupo.equipos[3]]; //lo cargue como grupo.equipos pensando que hacia una copia del mismo, pero al sacar a uno mas abajo me lo sacaba de la lista definitiva
-    let e1 = 0;
-    let e2 = 0;
-    while (e1 <= 0 || e1 >= 5) {
-        e1 = parseInt(prompt("Ingrese al equipo Local: Equipos del grupo " + grupo.nombre + "\n1) " + listaEquipos[0].nombre + "\n2) " + listaEquipos[1].nombre + "\n3) " + listaEquipos[2].nombre + "\n4) " + listaEquipos[3].nombre));
-    }
-    e1 = e1 - 1; //Como un array se maneja desde el valor 0, le resto 1 para que coincida la seleccion con su posicion en el array
-    let eqLocal = listaEquipos[e1];
-    listaEquipos.splice(e1, 1);
+function juego(grupo){
 
-    while (e2 <= 0 || e2 >= 5) {
-        e2 = parseInt(prompt("Ingrese al equipo Visitante: Equipos del grupo " + grupo.nombre + "\n1) " + listaEquipos[0].nombre + "\n2) " + listaEquipos[1].nombre + "\n3) " + listaEquipos[2].nombre));
-    }
-    e2 = e2 - 1;
-    let eqVisitante = listaEquipos[e2];
-    //Aca ya no es necesario que lo quite de listaEquipos, ya que solo necesito 2 equipos
+    document.getElementById("confirmaGrupo").disabled=true;
+    document.getElementById("listadoDeGrupos").disabled=true;
 
-    let golesLocal = -1;
-    while (golesLocal < 0) {
-        golesLocal = parseInt(prompt("Cuantos goles metio " + eqLocal.nombre));
-    }
-    let golesVisitante = -1;
-    while (golesVisitante < 0) {
-        golesVisitante = parseInt(prompt("Cuantos goles metio " + eqVisitante.nombre));
+    document.getElementById("eqLocal").style.visibility="visible";
+
+    let listaEquipos = [grupo.equipos[0], grupo.equipos[1], grupo.equipos[2], grupo.equipos[3]];
+    let i=0;
+    let eqNombre="";
+    let eqLocal;
+    let eqVisitante;
+
+    while(i<listaEquipos.length){
+        eqNombre=listaEquipos[i].nombre;
+        document.getElementById("listaGrupoLoc").innerHTML+="<option value="+i+">"+eqNombre+"</option>";
+        i++;
     }
 
-    let resultado = golesLocal + " a " + golesVisitante;
-    //Se carga siempre igual, ya que en el registro se ve que el 1er numero es del local y el 2do es del visitante, no se lee por quien gano o perdio
-    let partido = new Partido(eqLocal, eqVisitante, golesLocal, golesVisitante, resultado, eqLocal.estadio); //Se supone que siempre se juega en la cancha del local
-    if (golesLocal == golesVisitante) {
-        alert(eqLocal.nombre + " y " + eqVisitante.nombre + " Empataron " + resultado);
-    } else {
-        if (golesLocal > golesVisitante) {
-            alert(eqLocal.nombre + " le gano a " + eqVisitante.nombre + " " + resultado);
-        } else {
-            alert(eqVisitante.nombre + " le gano a " + eqLocal.nombre + " " + golesVisitante + " a " + golesLocal);
-            //en este caso no se usa resultado, ya que Visitante le gano a Local 0 a 1 por ejemplo no se ve bien
+    let btnLocal = document.getElementById("local");
+    let opcLocal = document.getElementById("listaGrupoLoc");
+
+    btnLocal.onclick = (e) => {
+        e.preventDefault();
+        
+        let seleccionL = opcLocal.options[opcLocal.selectedIndex].value;
+
+        document.getElementById("listaGrupoLoc").innerHTML="";
+
+        eqLocal = listaEquipos[seleccionL];
+        listaEquipos.splice(seleccionL,1);
+
+        document.getElementById("local").disabled=true;
+        document.getElementById("listaGrupoLoc").disabled=true;
+
+        document.getElementById("eqVisitante").style.visibility="visible";
+    
+    //FIN ELECCION LOCAL
+    
+    i=0;
+    while(i<listaEquipos.length){
+        eqNombre=listaEquipos[i].nombre;
+        document.getElementById("listaGrupoVis").innerHTML+="<option value="+i+">"+eqNombre+"</option>";
+        i++;
+    }
+
+    btnVisitante = document.getElementById("visitante");
+    opcVisitante = document.getElementById("listaGrupoVis");
+
+    btnVisitante.onclick = (e) => {
+        e.preventDefault();
+
+        let seleccionV = opcVisitante.options[opcVisitante.selectedIndex].value;
+
+        document.getElementById("listaGrupoVis").innerHTML="";
+
+        eqVisitante = listaEquipos[seleccionV];
+
+        document.getElementById("visitante").disabled=true;
+        document.getElementById("listaGrupoVis").disabled=true;
+
+        document.getElementById("resultado").style.visibility="visible";
+
+    //FIN ELECCION VISITANTE
+
+    document.getElementById("resultado").innerHTML=`
+        <label>`+eqLocal.nombre+`</label><input type="number" min=0 value=0 id="golLocal">
+        <label> -  </label>
+        <input type="number" min=0 value=0 id="golVisita"><label>`+ eqVisitante.nombre+`</label>
+        <button type="submit">Confirmar Resultado</button>
+    `
+    document.getElementById("resultado").addEventListener("submit", (e) => {
+        e.preventDefault();
+        //let resFinal = e.target;
+        let golesLocal = document.getElementById("golLocal").value;
+        let golesVisitante = document.getElementById("golVisita").value;
+
+        if(golesLocal==""){     //Esto evita que tengan null, se le asigna 0 goles
+            golesLocal=0;
         }
-    }
+        if(golesVisitante==""){
+            golesVisitante=0;
+        }
 
-    registroPartidos.push(partido);
+        let partido;
+
+        if(golesLocal>golesVisitante){
+            partido = new Partido(eqLocal, eqVisitante, golesLocal, golesVisitante,eqLocal.nombre,eqLocal.estadio);
+            alert(eqLocal.nombre+" Gano "+golesLocal+" a "+golesVisitante);
+        }else{
+            if(golesVisitante>golesLocal){
+                partido = new Partido(eqLocal, eqVisitante, golesLocal, golesVisitante,eqVisitante.nombre,eqLocal.estadio);
+                alert(eqVisitante.nombre+" Gano "+golesVisitante+" a "+golesLocal);
+            }else{
+                partido = new Partido(eqLocal, eqVisitante, golesLocal, golesVisitante,"empate",eqLocal.estadio);
+                alert(eqLocal.nombre+" y "+eqVisitante.nombre+" Empataron "+golesLocal+" a "+golesVisitante);
+            }
+        }
+
+        registroPartidos.push(partido);
+
+        document.getElementById("listadoDeGrupos").innerHTML="";
+
+        document.getElementById("confirmaGrupo").disabled=false;
+        document.getElementById("listadoDeGrupos").disabled=false;
+        document.getElementById("local").disabled=false;
+        document.getElementById("listaGrupoLoc").disabled=false;
+        document.getElementById("visitante").disabled=false;
+        document.getElementById("listaGrupoVis").disabled=false;
+
+        simuladorPartidos.style.visibility = "hidden";
+        document.getElementById("eqLocal").style.visibility="hidden";
+        document.getElementById("eqVisitante").style.visibility="hidden";
+        document.getElementById("resultado").style.visibility="hidden";
+
+    })
+
+    };};
+    
 }
 
-function infoPartidos(partido) {
-    console.log(partido.equipo1.nombre + " " + partido.golesE1 + " - " + partido.golesE2 + " " + partido.equipo2.nombre);
-    if (partido.estadio == "") {
-        console.log("Estadio Neutral");
-    } else {
-        console.log("Estadio " + partido.estadio);
+function infoPartidos(partido){
+    let resultado = partido.equipo1.nombre + " " + partido.golesE1 + " - " + partido.golesE2 + " " + partido.equipo2.nombre;
+    let estadio;
+    if(partido.estadio == ""){
+        estadio = "Estadio Neutral";
+    }else{
+        estadio = "Estadio "+partido.estadio;
     }
+    return resultado+" - "+estadio;
 }
 
 function infoResultadosTorneo() {
+    document.getElementById("registroDePartidos").innerHTML="";
     let i = 0;
     while (i < registroPartidos.length) {
-        infoPartidos(registroPartidos[i]);
-        console.log("\n");
+        document.getElementById("registroDePartidos").innerHTML+='<tr><td>'+infoPartidos(registroPartidos[i])+'</td></tr>';
         i++;
     }
+}
+
+function guardarTorneo(e){
+    e.preventDefault();
+    let registroEquiposJSON = JSON.stringify(registroEquipos);
+    let registroPartidosJSON = JSON.stringify(registroPartidos);
+    let gruposJSON = JSON.stringify(grupos);
+    localStorage.setItem('registroEquipos',registroEquiposJSON);
+    localStorage.setItem('registroPartidos',registroPartidosJSON);
+    localStorage.setItem('grupos',gruposJSON);
+    alert("Se guardaron todos los datos");
+}
+
+function cargarTorneo(e){
+    e.preventDefault();
+    registroEquipos = JSON.parse(localStorage.getItem('registroEquipos'));
+    registroPartidos = JSON.parse(localStorage.getItem('registroPartidos'));
+    grupos = JSON.parse(localStorage.getItem('grupos'));
+    alert("Se cargaron los ultimos datos guardados");
+    document.getElementById("creaTorneo").disabled = true;
+    document.getElementById("creaTorneo").style.visibility="hidden";
+    btnGrupos.style.visibility = "visible";
+    btnIniciarJuego.style.visibility = "visible";
+    btnPromedio.style.visibility = "visible";
+    btnRegistroPartidos.style.visibility = "visible";
+    btnGuardarTorneo.style.visibility = "visible";
 }

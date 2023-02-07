@@ -4,15 +4,85 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css/style.css">
-    <script src="js/main.js"></script>
+    <!-- <link rel="stylesheet" href="css/style.css"> AGREGADO DE CSS PENDIENTE PARA ENTREGA FINAL -->
     <title>Document</title>
 </head>
 <body>
     <h1>Torneos De Rossi</h1>
     <h2>El Administrador de tus torneos de Futbol</h2>
-    
-    <h2>Si llegaste a este punto tus equipos estan registrados correctamente</h2>
-    <h2>Click Derecho: Inspeccionar, anda a Consola (o Console) y ahi estan tus equipos</h2>
+
+    <button id="creaTorneo">Crear Torneo</button> <!--NUEVO-->
+
+    <button id="cargarTorneo">Cargar Torneo</button>
+
+    <button id="grupos">Mostrar Grupos</button>
+
+    <button id="promEdad">Promedio Edad Torneo</button>
+
+    <button id="iniciaJuego">Iniciar Juego</button>
+
+    <button id="infoPartidos">Registro de Partidos</button>
+
+    <button id="guardarTorneo">Guardar Torneo</button>
+
+    <form id="cantEquipos">
+        
+    </form>
+
+    <form id="equipos">
+
+    </form>
+
+    <table>
+        <thead id="tituloListaEq">
+            <th>Nombre</th>
+            <th>Estadio</th>
+        </thead>
+        <tbody id="listaEquipos">
+
+        </tbody>
+    </table>
+
+    <table>
+        <thead>
+            <tr id="nomGrupos"></tr>
+        </thead>
+        <tbody id="listaGrupos">
+
+        </tbody>
+    </table>
+
+    <form id="cargarPartido">
+        <select name="listadoDeGrupos" id="listadoDeGrupos" >
+            
+        </select>
+        <button id="confirmaGrupo">Confirmar</button>
+    </form>
+
+    <form id="eqLocal"> <!--Se carga el equipo local-->
+        <select name="listaGrupoLoc" id="listaGrupoLoc">
+
+        </select>
+        <button id="local">Seleccionar Local</button>
+    </form>
+
+    <form id="eqVisitante"> <!--Se carga el equipo visitante-->
+        <select name="listaGrupoVis" id="listaGrupoVis">
+
+        </select>
+        <button id="visitante">Seleccionar Visitante</button>
+    </form>
+
+    <form id="resultado"> <!--Se carga el resultado del partido-->
+
+    </form>
+
+    <table id="registroDePartidos">
+        <tbody id="regPart">
+
+        </tbody>
+    </table>
+
+    <script src="js/main.js"></script>
 </body>
 </html>
