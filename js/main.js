@@ -8,10 +8,11 @@ class Jugador {
 }
 
 class Equipo {
-    constructor(nombre, estadio, jugadores) {
+    constructor(nombre, estadio, jugadores, puntos) {
         this.nombre = nombre;
         this.estadio = estadio;
         this.jugadores = jugadores;
+        this.puntos = puntos;
     }
 }
 
@@ -53,7 +54,7 @@ document.getElementById("eqVisitante").style.visibility="hidden";
 
 document.getElementById("resultado").style.visibility="hidden";
 
-//let baseDeDatosUsuarios = []; //NUEVO - A implementar en entrega final
+let silbato = new Audio("assets/silbato.mp3");
 
 let scaloneta = []; //ARRAY SOLO PARA PRUEBAS
 
@@ -91,6 +92,18 @@ scaloneta.push(new Jugador("Enzo Fernandez", 24, 21, "Mediocampista"));
 scaloneta.push(new Jugador("Lisandro Martinez", 25, 24, "Defensor"));
 scaloneta.push(new Jugador("Nahuel Molina", 26, 24, "Defensor"));
 
+const msjConfirmacion = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+      toast.addEventListener('mouseenter', Swal.stopTimer)
+      toast.addEventListener('mouseleave', Swal.resumeTimer)
+    }
+  })
+
 let btnCrearTorneo = document.getElementById("creaTorneo");
 
 let btnCargarTorneo = document.getElementById("cargarTorneo");
@@ -117,7 +130,7 @@ btnGuardarTorneo.style.visibility = "hidden";
 
 btnCrearTorneo.addEventListener("click", crearTorneo);
 
-btnCargarTorneo.addEventListener("click",cargarTorneo);
+btnCargarTorneo.addEventListener("click",esperaChequeo);
 
 btnGrupos.addEventListener("click",infoGrupos);
 
@@ -160,14 +173,27 @@ function crearTorneo() {
             let nombreEquipo = carga.children[1].value;
             let nombreEstadio = carga.children[2].value;
             if (carga.children[1].value == "") {
-                alert("NO VALIDO");
+                //alert("NO VALIDO");
+
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'El campo Nombre no puede quedar vacio',
+                    icon: 'error',
+                    confirmButtonText: 'Continuar'
+                  })
+
                 return;
             }
             document.getElementById("listaEquipos").innerHTML += '<tr><td>' + nombreEquipo + '</td><td>' + nombreEstadio + '</td></tr>';
-            registroEquipos.push(crearEquipo(nombreEquipo, nombreEstadio, scaloneta));
-            formulario.reset()
+            registroEquipos.push(crearEquipo(nombreEquipo, nombreEstadio, scaloneta,0));
+            formulario.reset();
+              
+            msjConfirmacion.fire({
+                icon: 'success',
+                title: nombreEquipo+' Registrado en la competencia'
+            })
             if (registroEquipos.length == equipos) {
-                formulario.remove(); //podrias deshabilitar tambien el boton de crear torneo de la misma forma o con la siguiente linea
+                formulario.remove();
                 document.getElementById("creaTorneo").disabled = true;
                 document.getElementById("creaTorneo").style.visibility="hidden";
                 btnGrupos.style.visibility = "visible";
@@ -176,16 +202,24 @@ function crearTorneo() {
                 btnRegistroPartidos.style.visibility = "visible";
                 btnGuardarTorneo.style.visibility = "visible";
                 grupos = armarGrupos(registroEquipos, (equipos / 4));
+                guardarTorneo(e);
+                document.getElementById("tituloListaEq").innerHTML="";
+                document.getElementById("listaEquipos").innerHTML="";
             }
         });
     } else {
-        alert("Deben ser grupos de a 4 - MAXIMO 32")
+        Swal.fire({
+            title: 'Cantidad no Valida',
+            text: 'Deben ser grupos de a 4 - MAXIMO 32',
+            icon: 'error',
+            confirmButtonText: 'Reintentar'
+          })
     }
     })
 }
 
-function crearEquipo(nombre, estadio, jugadores) {
-    return new Equipo(nombre, estadio, jugadores);
+function crearEquipo(nombre, estadio, jugadores, puntos) {
+    return new Equipo(nombre, estadio, jugadores, puntos);
 }
 
 //ESTA FUNCION SIMULA EL SORTEO DE FASE DE GRUPOS, SOLO QUE EN LUGAR DE SER X BOLILLEROS ES UNO CON LA TOTALIDAD DE EQUIPOS
@@ -206,7 +240,19 @@ function armarGrupos(registroEquipos, cantidadGrupos) {
     return torneo;
 }
 
-function inscripcionEquipo() { //A implementar en la Entrega Final
+function reordenarPorPuntos(grupo){ //pasar lista de equipos, no objeto grupo
+    grupo.sort(function (a, b) {
+        if (a.puntos > b.puntos) {
+          return -1;
+        }
+        if (a.puntos < b.puntos) {
+          return 1;
+        }
+        return 0;
+      });
+}
+
+function inscripcionEquipo() { //No se llego a implementar, sin embargo se desarrollo la logica
     const posiciones = ["Arquero", "Defensor", "Mediocampista", "Delantero"];
     let plantel = [];
     let nombreCompleto = "";
@@ -215,13 +261,24 @@ function inscripcionEquipo() { //A implementar en la Entrega Final
     for (let i = 1; i < 26; i++) {
         nombreCompleto = prompt("Ingrese nombre completo del jugador numero " + i); //La idea es cargar a los jugadores segun el numero de camiseta
         while (nombreCompleto == "") {
-            alert("NOMBRE NO VALIDO");
+            //alert("NOMBRE NO VALIDO");
+            Swal.fire({
+                title: 'NOMBRE NO VALIDO',
+                text: 'El campo Nombre no puede quedar vacio',
+                icon: 'error',
+                confirmButtonText: 'Reintentar'
+              })
             nombreCompleto = prompt("Ingrese nombre completo del jugador numero " + i);
         }
         edad = parseInt(prompt("Ingrese edad del Jugador"));
         pos = parseInt(prompt("Ingrese posicion del Jugador:\n1) Arquero\n2) Defensor\n3) Mediocampista\n4) Delantero"));
         while (pos <= 0 || pos >= 5) {
-            alert("SELECCION NO VALIDA");
+            Swal.fire({
+                title: 'SELECCION NO VALIDA',
+                text: 'La posicion seleccionada NO EXISTE',
+                icon: 'error',
+                confirmButtonText: 'Reintentar'
+              })
             pos = parseInt(prompt("Ingrese posicion del Jugador:\n1) Arquero\n2) Defensor\n3) Mediocampista\n4) Delantero"));
         }
         plantel.push(new Jugador(nombreCompleto, i, edad, posiciones[pos - 1]));
@@ -245,7 +302,7 @@ function infoGrupos(){
         let col = document.createElement('td');
         for (let i = 0; i < 4; i++) {
             let row = document.createElement('tr');
-            row.innerHTML = grupo.equipos[i].nombre;
+            row.innerHTML = grupo.equipos[i].nombre+' - '+grupo.equipos[i].puntos+' pts';
             col.appendChild(row);
         }
         document.getElementById("listaGrupos").appendChild(col);
@@ -269,7 +326,11 @@ function promedioEdadTorneo() {
         }
         i++;
     }
-    alert("El promedio de edad de todo el torneo es de: " + sumaEdades / cantidadJugadores + " años");
+    Swal.fire({
+        text: 'El promedio de edad de todo el torneo es de: ' + (sumaEdades / cantidadJugadores).toFixed(2) + ' años',
+        icon: 'info'
+      })
+    
 }
 
 function iniciarJuego(){
@@ -365,7 +426,6 @@ function juego(grupo){
     `
     document.getElementById("resultado").addEventListener("submit", (e) => {
         e.preventDefault();
-        //let resFinal = e.target;
         let golesLocal = document.getElementById("golLocal").value;
         let golesVisitante = document.getElementById("golVisita").value;
 
@@ -380,18 +440,39 @@ function juego(grupo){
 
         if(golesLocal>golesVisitante){
             partido = new Partido(eqLocal, eqVisitante, golesLocal, golesVisitante,eqLocal.nombre,eqLocal.estadio);
-            alert(eqLocal.nombre+" Gano "+golesLocal+" a "+golesVisitante);
+            silbato.play();
+            Swal.fire({
+                imageUrl: "assets/arbitro.png",
+                title: 'Fin del Partido',
+                text: eqLocal.nombre+' Gano '+golesLocal+' a '+golesVisitante
+              });
         }else{
             if(golesVisitante>golesLocal){
                 partido = new Partido(eqLocal, eqVisitante, golesLocal, golesVisitante,eqVisitante.nombre,eqLocal.estadio);
-                alert(eqVisitante.nombre+" Gano "+golesVisitante+" a "+golesLocal);
+                silbato.play();
+                Swal.fire({
+                    imageUrl: "assets/arbitro.png",
+                    title: 'Fin del Partido',
+                    text: eqVisitante.nombre+' Gano '+golesVisitante+' a '+golesLocal
+                  });
             }else{
                 partido = new Partido(eqLocal, eqVisitante, golesLocal, golesVisitante,"empate",eqLocal.estadio);
-                alert(eqLocal.nombre+" y "+eqVisitante.nombre+" Empataron "+golesLocal+" a "+golesVisitante);
+                silbato.play();
+                Swal.fire({
+                    imageUrl: "assets/arbitro.png",
+                    title: 'Fin del Partido',
+                    text: eqLocal.nombre+' y '+eqVisitante.nombre+' Empataron '+golesLocal+' a '+golesVisitante
+                  });
             }
         }
 
+        asignarPuntos(grupo.nombre,partido);
+
         registroPartidos.push(partido);
+
+        reordenarPorPuntos(grupo.equipos);
+
+        infoGrupos();
 
         document.getElementById("listadoDeGrupos").innerHTML="";
 
@@ -406,11 +487,53 @@ function juego(grupo){
         document.getElementById("eqLocal").style.visibility="hidden";
         document.getElementById("eqVisitante").style.visibility="hidden";
         document.getElementById("resultado").style.visibility="hidden";
-
     })
 
     };};
     
+}
+
+function asignarPuntos(nombreGrupo, partido){
+    let i=0;
+    let j=0;
+    let k=0;
+    let local=0;
+    let visitante=0;
+    while(i<grupos.length){
+
+        if(nombreGrupo==grupos[i].nombre){
+            while(local==0 || visitante==0){
+                if(local==0){
+                    if(partido.equipo1.nombre==grupos[i].equipos[j].nombre){
+                        local=1;
+                    }else{
+                        j++;
+                    }
+                }
+                if(visitante==0){
+                    if(partido.equipo2.nombre==grupos[i].equipos[k].nombre){
+                        visitante=1;
+                    }else{
+                        k++;
+                    }
+                }
+            }
+
+            if(partido.ganador == grupos[i].equipos[j].nombre){
+                grupos[i].equipos[j].puntos+=3;
+            }else{
+                if(partido.ganador == grupos[i].equipos[k].nombre){
+                    grupos[i].equipos[k].puntos+=3;
+                }else{//Empate
+                    grupos[i].equipos[j].puntos+=1;
+                    grupos[i].equipos[k].puntos+=1;
+                }
+            }
+            i=grupos.length; //Fuerzo el cierre del ciclo
+        }else{
+            i++;
+        }
+    }
 }
 
 function infoPartidos(partido){
@@ -441,15 +564,22 @@ function guardarTorneo(e){
     localStorage.setItem('registroEquipos',registroEquiposJSON);
     localStorage.setItem('registroPartidos',registroPartidosJSON);
     localStorage.setItem('grupos',gruposJSON);
-    alert("Se guardaron todos los datos");
+    Swal.fire({
+        icon: 'success',
+        title: 'Guardado Exitoso',
+        text: 'Se guardaron todos los datos'
+      })
 }
 
-function cargarTorneo(e){
-    e.preventDefault();
+function cargarTorneo(){
     registroEquipos = JSON.parse(localStorage.getItem('registroEquipos'));
     registroPartidos = JSON.parse(localStorage.getItem('registroPartidos'));
     grupos = JSON.parse(localStorage.getItem('grupos'));
-    alert("Se cargaron los ultimos datos guardados");
+    Swal.fire({
+        icon: 'success',
+        title: 'Carga Exitosa',
+        text: 'Se cargaron los ultimos datos guardados'
+    })
     document.getElementById("creaTorneo").disabled = true;
     document.getElementById("creaTorneo").style.visibility="hidden";
     btnGrupos.style.visibility = "visible";
@@ -458,3 +588,34 @@ function cargarTorneo(e){
     btnRegistroPartidos.style.visibility = "visible";
     btnGuardarTorneo.style.visibility = "visible";
 }
+
+function esperaChequeo(){
+    Swal.fire({
+        title: 'Revisando Base de Datos',
+        timer: 2000,
+        didOpen: () => {
+          Swal.showLoading()
+        }
+      })
+    setTimeout(llamadoChequeo,2001);
+}
+
+function llamadoChequeo(){
+    chequeoBdD
+        .then(resultado => {if(resultado){cargarTorneo()}})
+        .catch(error => {if(error){
+            Swal.fire({
+                icon: 'error',
+                title: 'Torneo no Existente',
+                text: 'Aun no creaste ningun torneo'
+            });
+        }})
+}
+
+const chequeoBdD = new Promise((resolve,reject)=>{
+    if (localStorage.getItem('grupos')){
+        resolve(true);
+    }else{
+        reject(true);
+    }
+})

@@ -8,6 +8,4 @@
 
 ⚽ El usuario carga los resultados de cada cruce, en base a lo cargado se suman los puntos
 
-⚽ Cuando terminen los cruces los 2 primeros lugares de cada grupo pasan a una ronda eliminatoria cruzandose mediante algoritmo aleatorio (Los equipos no pueden enfrentarse en el 1er partido si eran del mismo grupo, a menos que solo haya un grupo, donde irian a una final directa)
-
-⚽ Para la 3er Preentrega se cambio el metodo de ingreso de consola a HTML
+⚽ Para la entrega final se agrego un CSS usando Bootstrap, se agregaron fuentes de googleapi, se incluyeron sweetalert2 y una promesa al momento de cargar desde el localhost

@@ -4,26 +4,38 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- <link rel="stylesheet" href="css/style.css"> AGREGADO DE CSS PENDIENTE PARA ENTREGA FINAL -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+    <!-- En Terminal: npm install sweetalert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="sweetalert2.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Tourney:ital,wght@1,600&display=swap" rel="stylesheet">
     <title>Document</title>
 </head>
 <body>
-    <h1>Torneos De Rossi</h1>
-    <h2>El Administrador de tus torneos de Futbol</h2>
+    <div class="head">
+        <h1>Torneos De Rossi</h1>
+        <h2>El Administrador de tus torneos de Futbol</h2>
+    </div>
 
-    <button id="creaTorneo">Crear Torneo</button> <!--NUEVO-->
+    <div class="botonera">
+        <button id="creaTorneo" class="btn btn-info">Crear Torneo</button>
 
-    <button id="cargarTorneo">Cargar Torneo</button>
+        <button id="cargarTorneo" class="btn btn-info">Cargar Torneo</button>
 
-    <button id="grupos">Mostrar Grupos</button>
+        <button id="grupos" class="btn btn-info">Mostrar Grupos</button>
 
-    <button id="promEdad">Promedio Edad Torneo</button>
+        <button id="promEdad" class="btn btn-info">Promedio Edad Torneo</button>
 
-    <button id="iniciaJuego">Iniciar Juego</button>
+        <button id="iniciaJuego" class="btn btn-info">Iniciar Juego</button>
 
-    <button id="infoPartidos">Registro de Partidos</button>
+        <button id="infoPartidos" class="btn btn-info">Registro de Partidos</button>
 
-    <button id="guardarTorneo">Guardar Torneo</button>
+        <button id="guardarTorneo" class="btn btn-info">Guardar Torneo</button>
+    </div>
 
     <form id="cantEquipos">
         
@@ -43,7 +55,7 @@
         </tbody>
     </table>
 
-    <table>
+    <table class="table table-striped-columns">
         <thead>
             <tr id="nomGrupos"></tr>
         </thead>
@@ -74,15 +86,14 @@
     </form>
 
     <form id="resultado"> <!--Se carga el resultado del partido-->
-
+        
     </form>
 
-    <table id="registroDePartidos">
+    <table id="registroDePartidos" class="table table-warning table-hover">
         <tbody id="regPart">
 
         </tbody>
     </table>
-
     <script src="js/main.js"></script>
 </body>
 </html>
